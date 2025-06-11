@@ -3,11 +3,13 @@ name: build
 on:
   push:
     branches:
+      - main
       - master
     tags:
       - v*
   pull_request:
     branches:
+      - main
       - master
 
 permissions:
@@ -17,7 +19,7 @@ jobs:
   build-rust:
     strategy:
       matrix:
-        platform: [ubuntu-latest]
+        platform: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -28,13 +30,17 @@ jobs:
         run: rustup toolchain install stable --component llvm-tools-preview
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
-      - name: install nextest
+      - name: Install nextest
         uses: taiki-e/install-action@nextest
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@cargo-deny
       - uses: Swatinem/rust-cache@v2
       - name: Check code format
         run: cargo fmt -- --check
       - name: Check the package for errors
         run: cargo check --all
+      - name: Check cargo dependencies
+        run: cargo deny check
       - name: Lint rust sources
         run: cargo clippy --all-targets --all-features --tests --benches -- -D warnings
       - name: Execute rust tests
