@@ -1,8 +1,7 @@
 use anyhow::Result;
 use csv::Reader;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::fs;
+use std::{collections::HashMap, fs};
 
 use crate::OutputFormat;
 
