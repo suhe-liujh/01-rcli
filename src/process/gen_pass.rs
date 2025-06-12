@@ -56,8 +56,10 @@ pub fn process_genpass(
     password.shuffle(&mut rng);
 
     let password_str = String::from_iter(password);
+    println!("{}", password_str);
+
     let estimate = zxcvbn(&password_str, &[]);
-    println!("Password: {} Score: {}", password_str, estimate.score());
+    eprintln!("Password Score: {}", estimate.score());
 
     Ok(())
 }
