@@ -1,11 +1,13 @@
-fn main() {
-    println!("Hello, rust!");
-}
+use clap::Parser;
+use rcli::*;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_basic() {
-        assert_eq!(2 + 2, 4);
+fn main() -> anyhow::Result<()> {
+    let opts = Opts::parse();
+    match opts.cmd {
+        SubCommand::Csv(csv_opts) => {
+            process_csv(&csv_opts.input, &csv_opts.output)?;
+        }
     }
+
+    Ok(())
 }
