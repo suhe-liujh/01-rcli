@@ -80,3 +80,51 @@ pub fn process_csv(input: &str, output: String, format: OutputFormat) -> Result<
     fs::write(output, content)?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tempfile::NamedTempFile;
+
+    #[test]
+    fn test_player_serialization() {
+        let player = Player {
+            name: "Test Player".to_string(),
+            position: "Forward".to_string(),
+            dob: "1990-01-01".to_string(),
+            nationality: "Test Country".to_string(),
+            kit_number: 10,
+        };
+
+        let json = serde_json::to_string(&player).unwrap();
+        assert!(json.contains("Test Player"));
+        assert!(json.contains("Forward"));
+    }
+
+    #[test]
+    fn test_process_csv_with_temp_file() -> Result<()> {
+        // 创建临时 CSV 文件
+        let mut temp_csv = NamedTempFile::new()?;
+        writeln!(temp_csv, "Name,Position,DOB,Nationality,Kit Number")?;
+        writeln!(temp_csv, "Test Player,Forward,1990-01-01,Test Country,10")?;
+        temp_csv.flush()?;
+
+        // 创建临时输出文件
+        let temp_output = NamedTempFile::new()?;
+        let output_path = temp_output.path().to_str().unwrap().to_string();
+
+        // 测试 JSON 格式
+        process_csv(
+            temp_csv.path().to_str().unwrap(),
+            output_path.clone(),
+            OutputFormat::Json,
+        )?;
+
+        let content = fs::read_to_string(&output_path)?;
+        assert!(content.contains("Test Player"));
+        assert!(content.contains("Forward"));
+
+        Ok(())
+    }
+}
